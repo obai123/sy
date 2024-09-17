@@ -35,7 +35,7 @@ class FileRepository implements FileRepositoryInterface
         }
 
         // dd(str_replace(Storage::url(''), '', $file->path));
-        Storage::delete('public/' . str_replace(Storage::url(''), '', $file->path));
+        Storage::delete(str_replace(Storage::url(''), '', $file->path));
         $file->delete();
 
         return $this->formatResponse('success', 'File deleted successfully.', null);

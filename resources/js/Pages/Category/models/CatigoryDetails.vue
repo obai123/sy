@@ -19,7 +19,7 @@
                     <v-card>
                         <v-img
                             :src="
-                                category.picture ||
+                                getPicture(category.picture) ||
                                 'https://via.placeholder.com/400x200'
                             "
                             height="200px"
@@ -186,6 +186,12 @@ const deleteCategory = async (id) => {
             alert("Faild to delete the Category.");
         }
     }
+};
+
+const getPicture = (pictureName) => {
+    console.log(window.location.origin);
+
+    return `${window.location.origin}/${pictureName}`;
 };
 </script>
 

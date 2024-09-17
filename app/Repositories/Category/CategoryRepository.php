@@ -33,6 +33,7 @@ class CategoryRepository implements CategoryRepositoryInterface
         return $this->formatResponse('success', 'Category retrieved successfully.', $category);
     }
 
+
     public function createCategory(array $data)
     {
         $category = new Category();
@@ -61,9 +62,8 @@ class CategoryRepository implements CategoryRepositoryInterface
         $category->title = $data['title'] ?? $category->title;
 
         if (isset($data['picture'])) {
-            // Optionally delete the old picture
-            if ($category->picture) {
-                Storage::delete('public/' . str_replace(Storage::url(''), '', $category->picture));
+            if ($category->picture && file_exists(public_path($category->picture))) {
+                unlink(public_path($category->picture)); // Delete the old picture from public folder
             }
             $category->picture = $this->uploadPicture($data['picture']);
         }
@@ -76,9 +76,9 @@ class CategoryRepository implements CategoryRepositoryInterface
     }
 
 
+
     public function deleteCategory(int $id)
     {
-        //TODO  don`t delete category has files or sub category
         $category = Category::find($id);
 
         if (!$category) {
@@ -89,18 +89,22 @@ class CategoryRepository implements CategoryRepositoryInterface
             return $this->formatResponse('error', 'Category not empty.', null);
         }
 
-        if ($category->picture) {
-            Storage::delete('public/' . str_replace(Storage::url(''), '', $category->picture));
+        // Delete the picture if it exists
+        if ($category->picture && file_exists(public_path($category->picture))) {
+            unlink(public_path($category->picture)); // Delete the picture from public folder
         }
+
         $category->delete();
 
         return $this->formatResponse('success', 'Category deleted successfully.', null);
     }
 
-    
+
+
     private function uploadPicture($picture)
     {
-        $path = $picture->store('pictures', 'public');
-        return Storage::url($path); // Returns the full URL path
+        $filename = rand(1111, 9999) . '_' . time() . '_' . $picture->getClientOriginalName();
+        $picture->move(public_path('pictures'), $filename); // Save the file to public/pictures
+        return 'pictures/' . $filename; // Return the relative path
     }
 }
